@@ -6,9 +6,13 @@ Add a Category
 
 {% block body_block %}
     <h1>Add a New Category</h1>
-    <form id="category_form" method="post" action="{% url 'rango:add_category' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" name="submit" value="Create Category">
-    </form>
+    {% if user.is_authenticated %}
+        <form id="category_form" method="post" action="{% url 'rango:add_category' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" name="submit" value="Create Category">
+        </form>
+    {% else %}
+        You can only add categories if you are a registered user or are logged in
+    {% endif %}
 {% endblock %}
