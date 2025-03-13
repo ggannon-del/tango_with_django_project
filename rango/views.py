@@ -5,6 +5,10 @@ from rango.forms import CategoryForm, PageForm
 from rango.models import Category
 from tango_with_django_project import settings
 from rango.models import Page
+from django.urls import reverse
+
+
+
 
 def show_category(request, category_name_slug):
  context_dict = {}
@@ -21,18 +25,10 @@ def show_category(request, category_name_slug):
  return render(request, 'rango/category.html', context=context_dict)
 
 
-
 def index(request):
-    category_list = Category.objects.order_by('-likes')[:5]
-    page_list = Page.objects.order_by('-views')[:5]
-
-    context_dict = {
-        'boldmessage': 'Crunchy, creamy, cookie, candy, cupcake!',
-        'categories': category_list,
-        'pages': page_list,  # ← Add this
-    }
-
+    context_dict = {}
     return render(request, 'rango/index.html', context=context_dict)
+
 
 def about(request):
 
