@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.urls import reverse
@@ -29,13 +30,18 @@ def show_category(request, category_name_slug):
 
 
 def index(request):
+    visitor_cookie_handler(request)
     context_dict = {}
     return render(request, 'rango/index.html', context=context_dict)
 
 
 def about(request):
+    visitor_cookie_handler(request)
 
- return render(request, 'rango/about.html', {'MEDIA_URL': settings.MEDIA_URL})
+    visits = request.session.get('visits', 1)
+
+    return render(request, 'rango/about.html', {'visits': visits})
+
 
 @login_required
 def add_category(request):
@@ -155,3 +161,25 @@ def user_logout(request):
 
     logout(request)
     return redirect(reverse('rango:index'))
+
+
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val
+
+def visitor_cookie_handler(request):
+    visits = int(get_server_side_cookie(request, 'visits', '1'))
+    last_visit_cookie = get_server_side_cookie(request, 'last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+
+    if (datetime.now()- last_visit_time).days > 0:
+        visits = visits + 1
+        # Update the last visit cookie now that we have updated the count
+        request.session['last_visit'] = str(datetime.now())
+    else:
+        # Set the last visit cookie
+        request.session['last_visit'] = last_visit_cookie
+    # Update/set the visits cookie
+    request.session['visits'] = visits
